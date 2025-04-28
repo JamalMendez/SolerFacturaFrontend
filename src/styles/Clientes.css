@@ -1,0 +1,29 @@
+.clientes-container{
+    display: block;
+    width: 100%;
+}
+
+.clientes-header h1{
+    color: var(--verde-oscuro);
+}
+
+.clientes-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    margin-bottom: 30px;
+}
+
+.clientes-header .clientes-options input{
+    margin-right: 15px;
+}
+
+.alert {
+    position: sticky;
+    top: 10px;
+    transform: translateX(0);
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+}

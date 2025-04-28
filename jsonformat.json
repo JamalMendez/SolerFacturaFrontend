@@ -1,0 +1,629 @@
+{
+    "Cliente": {
+        "CreateCliente": {
+          "request": {
+            "rnc_cedula": "123456789",
+            "nombre": "John",
+            "apellido": "Doe",
+            "email": "john.doe@example.com",
+            "direccion": "123 Main Street",
+            "ciudad": "Santo Domingo",
+            "telefono": "8091234567",
+            "celular": "8099876543"
+          },
+          "response": {
+            "message": "Cliente created successfully",
+            "id": "1",
+            "rnc_cedula": "123456789",
+            "nombre": "John",
+            "apellido": "Doe",
+            "email": "john.doe@example.com",
+            "direccion": "123 Main Street",
+            "ciudad": "Santo Domingo",
+            "telefono": "8091234567",
+            "celular": "8099876543"
+          }
+        },
+        "GetAllCliente": {
+          "response": [
+            {
+              "id": 1,
+              "rnc_cedula": "123456789",
+              "nombre": "John",
+              "apellido": "Doe",
+              "email": "john.doe@example.com",
+              "direccion": "123 Main Street",
+              "ciudad": "Santo Domingo",
+              "telefono": "8091234567",
+              "celular": "8099876543"
+            },
+            {
+              "id": 2,
+              "rnc_cedula": "987654321",
+              "nombre": "Jane",
+              "apellido": "Smith",
+              "email": "jane.smith@example.com",
+              "direccion": "456 Elm Street",
+              "ciudad": "Santiago",
+              "telefono": "8097654321",
+              "celular": "8098765432"
+            }
+          ]
+        },
+        "GetByIdCliente": {
+          "response": {
+            "id": 1,
+            "rnc_cedula": "123456789",
+            "nombre": "John",
+            "apellido": "Doe",
+            "email": "john.doe@example.com",
+            "direccion": "123 Main Street",
+            "ciudad": "Santo Domingo",
+            "telefono": "8091234567",
+            "celular": "8099876543"
+          }
+        },
+        "UpdateCliente": {
+          "request": {
+            "rnc_cedula": "123456789",
+            "nombre": "John Updated",
+            "apellido": "Doe Updated",
+            "email": "john.updated@example.com",
+            "direccion": "123 Updated Street",
+            "ciudad": "Santo Domingo",
+            "telefono": "8091234567",
+            "celular": "8099876543"
+          },
+          "response": {
+            "message": "Cliente updated successfully"
+          }
+        },
+        "DeleteCliente": {
+          "response": {
+            "message": "Cliente deleted successfully"
+          }
+        }
+      },
+      "Productos": {
+        "CreateProducto": {
+          "request": {
+            "descripcion": "Laptop",
+            "costo": 1500,
+            "costoendolares": 50,
+            "tipoproducto": 1
+          },
+          "response": {
+            "message": "Producto created",
+            "id": "1",
+            "descripcion": "Laptop",
+            "costo": "1500",
+            "costoendolares": "50",
+            "tprid": "1"
+          }
+        },
+        "GetAllProducto": {
+          "response": [
+            {
+              "id": 1,
+              "descripcion": "Laptop",
+              "costo": 1500,
+              "costoendolares": 50,
+              "tipoproducto": "Electronics"
+            },
+            {
+              "id": 2,
+              "descripcion": "Phone",
+              "costo": 800,
+              "costoendolares": 30,
+              "tipoproducto": "Electronics"
+            }
+          ]
+        },
+        "GetByIdProducto": {
+          "response": {
+            "id": 1,
+            "descripcion": "Laptop",
+            "costo": 1500,
+            "costoendolares": 50,
+            "tipoproducto": "Electronics"
+          }
+        },
+        "UpdateProducto": {
+          "request": {
+            "descripcion": "Laptop Pro",
+            "costo": 2000,
+            "costoendolares": 70,
+            "tipoproducto": 1
+          },
+          "response": {
+            "message": "Producto updated"
+          }
+        },
+        "DeleteProducto": {
+          "response": {
+            "message": "Producto deleted"
+          }
+        }
+      },
+      "NCF": {
+        "CreateNCF": {
+          "request": {
+            "serie": "A",
+            "tipo": "01",
+            "secuencia": "00000001"
+          },
+          "response": {
+            "id": 1,
+            "serie": "A",
+            "tipo": "01",
+            "secuencia": "00000001"
+          }
+        },
+        "GetAllNCF": {
+          "response": [
+            {
+              "id": 1,
+              "serie": "A",
+              "tipo": "01",
+              "secuencia": "00000001"
+            },
+            {
+              "id": 2,
+              "serie": "B",
+              "tipo": "02",
+              "secuencia": "00000002"
+            }
+          ]
+        },
+        "GetByIdNCF": {
+          "response": {
+            "id": 1,
+            "serie": "A",
+            "tipo": "01",
+            "secuencia": "00000001"
+          }
+        },
+        "UpdateNCF": {
+          "request": {
+            "serie": "B",
+            "tipo": "02",
+            "secuencia": "00000002"
+          },
+          "response": {
+            "message": "NCF updated"
+          }
+        },
+        "DeleteNCF": {
+          "response": {
+            "message": "NCF deleted"
+          }
+        }
+      },
+      "TipoProducto": {
+        "CreateTipoProducto": {
+          "request": {
+            "descripcion": "Electronics"
+          },
+          "response": {
+            "message": "Tipo producto created",
+            "id": "1",
+            "descripcion": "Electronics"
+          }
+        },
+        "GetAllTipoProducto": {
+          "response": [
+            {
+              "id": 1,
+              "descripcion": "Electronics"
+            },
+            {
+              "id": 2,
+              "descripcion": "Furniture"
+            }
+          ]
+        },
+        "GetByIdTipoProducto": {
+          "response": {
+            "message": "Tipo producto found",
+            "id": "1",
+            "descripcion": "Electronics"
+          }
+        },
+        "UpdateTipoProducto": {
+          "request": {
+            "descripcion": "Updated Electronics"
+          },
+          "response": {
+            "message": "Tipo producto updated"
+          }
+        },
+        "DeleteTipoProducto": {
+          "response": {
+            "message": "Tipo producto deleted"
+          }
+        }
+      },
+      "TipoPago": {
+        "CreateTipoPago": {
+          "request": {
+            "descripcion": "Credit Card"
+          },
+          "response": {
+            "message": "Tipo pago created",
+            "id": "1",
+            "descripcion": "Credit Card"
+          }
+        },
+        "GetAllTipoPago": {
+          "response": [
+            {
+              "id": 1,
+              "descripcion": "Credit Card"
+            },
+            {
+              "id": 2,
+              "descripcion": "Cash"
+            }
+          ]
+        },
+        "GetByIdTipoPago": {
+          "response": {
+            "message": "Tipo pago found",
+            "id": "1",
+            "descripcion": "Credit Card"
+          }
+        },
+        "UpdateTipoPago": {
+          "request": {
+            "descripcion": "Updated Credit Card"
+          },
+          "response": {
+            "message": "Tipo pago updated"
+          }
+        },
+        "DeleteTipoPago": {
+          "response": {
+            "message": "Tipo pago deleted"
+          }
+        }
+      },
+      "Factura": {
+        "CreateFactura": {
+          "request": {
+            "ncf_id": 1,
+            "cliente_id": 1,
+            "tipo_pago_id": 1,
+            "costo_subtotal": 1000,
+            "costo_total": 1200,
+            "descuento": 100,
+            "envio": 50,
+            "cliente": "John Doe",
+            "descripcion": "Factura for electronics",
+            "en_dolares": false,
+            "fecha_vencimiento": "2025-05-01T00:00:00Z",
+            "factura_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          },
+          "response": {
+            "factura": {
+              "id": 1,
+              "ncf_id": 1,
+              "cliente_id": 1,
+              "tipo_pago_id": 1,
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "cliente": "John Doe",
+              "descripcion": "Factura for electronics",
+              "en_dolares": false,
+              "fecha_vencimiento": "2025-05-01T00:00:00Z"
+            },
+            "factura_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          }
+        },
+        "GetAllFactura": {
+          "response": [
+            {
+              "id": 1,
+              "ncf_serie": "A",
+              "ncf_tipo": "01",
+              "ncf_secuencia": "00000001",
+              "tipo_pago": "Credit Card",
+              "cliente": "John Doe",
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "descripcion": "Factura for electronics",
+              "fecha_creacion": "2025-04-25T00:00:00Z",
+              "fecha_vencimiento": "2025-05-01T00:00:00Z",
+              "en_dolares": false
+            }
+          ]
+        },
+        "GetByIdFactura": {
+          "response": {
+            "factura": {
+              "id": 1,
+              "ncf_serie": "A",
+              "ncf_tipo": "01",
+              "ncf_secuencia": "00000001",
+              "tipo_pago": "Credit Card",
+              "cliente": "John Doe",
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "descripcion": "Factura for electronics",
+              "fecha_creacion": "2025-04-25T00:00:00Z",
+              "fecha_vencimiento": "2025-05-01T00:00:00Z",
+              "en_dolares": false
+            },
+            "factura_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          }
+        },
+        "UpdateFactura": {
+          "request": {
+            "ncf_id": 1,
+            "cliente_id": 1,
+            "tipo_pago_id": 1,
+            "costo_subtotal": 1100,
+            "costo_total": 1300,
+            "descuento": 100,
+            "envio": 50,
+            "cliente": "John Doe Updated",
+            "descripcion": "Updated factura for electronics",
+            "en_dolares": false,
+            "fecha_vencimiento": "2025-05-10T00:00:00Z",
+            "factura_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 2,
+                "total_unitario": 3000,
+                "itbis": true
+              }
+            ]
+          },
+          "response": {
+            "message": "Factura updated successfully"
+          }
+        },
+        "DeleteFactura": {
+          "response": {
+            "message": "Factura deleted successfully"
+          }
+        }
+      },
+      "Cotizacion": {
+        "CreateCotizacion": {
+          "request": {
+            "cliente_id": 1,
+            "tipo_pago_id": 1,
+            "costo_subtotal": 1000,
+            "costo_total": 1200,
+            "descuento": 100,
+            "envio": 50,
+            "secuencia": "00000001",
+            "cliente": "John Doe",
+            "descripcion": "Cotizacion for electronics",
+            "en_dolares": false,
+            "cotizacion_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          },
+          "response": {
+            "cotizacion": {
+              "id": 1,
+              "cliente_id": 1,
+              "tipo_pago_id": 1,
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "secuencia": "00000001",
+              "cliente": "John Doe",
+              "descripcion": "Cotizacion for electronics",
+              "en_dolares": false
+            },
+            "cotizacion_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          }
+        },
+        "GetAllCotizacion": {
+          "response": [
+            {
+              "id": 1,
+              "secuencia": "00000001",
+              "tipo_pago": "Credit Card",
+              "cliente": "John Doe",
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "descripcion": "Cotizacion for electronics",
+              "fecha_creacion": "2025-04-25T00:00:00Z",
+              "en_dolares": false
+            }
+          ]
+        },
+        "GetByIdCotizacion": {
+          "response": {
+            "cotizacion": {
+              "id": 1,
+              "secuencia": "00000001",
+              "tipo_pago": "Credit Card",
+              "cliente": "John Doe",
+              "costo_subtotal": 1000,
+              "costo_total": 1200,
+              "descuento": 100,
+              "envio": 50,
+              "descripcion": "Cotizacion for electronics",
+              "fecha_creacion": "2025-04-25T00:00:00Z",
+              "en_dolares": false
+            },
+            "cotizacion_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 1,
+                "total_unitario": 1500,
+                "itbis": true
+              },
+              {
+                "id": 2,
+                "descripcion": "Phone",
+                "costo": 800,
+                "costo_en_dolares": 30,
+                "costo_unitario": 800,
+                "cantidad": 1,
+                "total_unitario": 800,
+                "itbis": false
+              }
+            ]
+          }
+        },
+        "UpdateCotizacion": {
+          "request": {
+            "cliente_id": 1,
+            "tipo_pago_id": 1,
+            "costo_subtotal": 1100,
+            "costo_total": 1300,
+            "descuento": 100,
+            "envio": 50,
+            "secuencia": "00000002",
+            "cliente": "John Doe Updated",
+            "descripcion": "Updated cotizacion for electronics",
+            "en_dolares": false,
+            "cotizacion_descripcion": [
+              {
+                "id": 1,
+                "descripcion": "Laptop",
+                "costo": 1500,
+                "costo_en_dolares": 50,
+                "costo_unitario": 1500,
+                "cantidad": 2,
+                "total_unitario": 3000,
+                "itbis": true
+              }
+            ]
+          },
+          "response": {
+            "message": "Cotizacion updated successfully"
+          }
+        },
+        "DeleteCotizacion": {
+          "response": {
+            "message": "Cotizacion deleted successfully"
+          }
+        }
+      }
+}

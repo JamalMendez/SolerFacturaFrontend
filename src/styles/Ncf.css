@@ -1,0 +1,21 @@
+.ncf-container{
+    display: block;
+    width: 100%;
+}
+
+.ncf-header h1{
+    color: var(--verde-oscuro);
+}
+
+.ncf-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    margin-bottom: 30px;
+}
+
+.ncf-header .ncf-options input{
+    margin-right: 15px;
+}
+

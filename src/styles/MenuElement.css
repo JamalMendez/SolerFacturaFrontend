@@ -1,0 +1,21 @@
+.menu-element{
+    padding: 10px 0;
+    margin: 30px 0;;
+    color: white;
+    transition: .5s all;
+    cursor: pointer;
+}
+
+@media (max-width: 700px){
+    .menu-element{
+        padding: 10px 25px;
+    }
+}
+
+.menu-active{
+    background-color: var(--verde-oscuro);
+}
+
+.menu-element:hover{
+    background-color: var(--verde-oscuro)
+}

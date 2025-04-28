@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Corbel";
+}
+
+body,
+html,
+#root,
+.container-app {
+    height: 100%;
+}
+
+:root {
+    --verde-oscuro: #18843a;
+    --verde-claro: #a0c020;
+    --negro: #1e1e1e;
+    --amarillo: #ffd800;
+}
+
+div.container-app {
+    display: flex;
+    background-color: white;
+}
+
+div.container-routes {
+    padding-left: 70px;
+    padding-top: 30px;
+    width: 100%;
+    background-color: white;
+    flex-basis: 100%;
+    transition: width 0.4s ease;
+}

@@ -1,0 +1,17 @@
+.factura-container{
+    display: block;
+    width: 100%;
+}
+
+.factura-header h1{
+    color: var(--verde-oscuro);
+}
+
+.factura-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    margin-bottom: 30px;
+}
+

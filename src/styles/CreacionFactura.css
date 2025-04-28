@@ -1,0 +1,40 @@
+.creacion-factura-contenedor{
+    display: flex;
+    width: 100%;
+    justify-content: space-around; 
+    max-height: 90vh;
+    margin-top: 24px;
+}
+
+.inputs-factura{
+    overflow-y: scroll;
+    padding-right: 10px;
+    overflow-x: hidden;
+    width: 45%;
+}
+
+.visualizacion-factura{
+    width: 50%;
+    height: 90vh;
+}
+
+.visualizacion-factura iframe{
+    width: 100%;
+    height: 90vh;
+}
+
+.btn-home{
+    position: absolute;
+    right: 30px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.alert {
+    position: sticky;
+    transform: translateX(0);
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+    margin-bottom: 10px;
+}
