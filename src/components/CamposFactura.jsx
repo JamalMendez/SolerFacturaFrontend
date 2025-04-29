@@ -24,6 +24,8 @@ import CamposClientes from "./CamposClientes";
 import Alert from "@mui/joy/Alert";
 import CamposProductos from "./CamposProductos";
 import clienteService from "../services/clienteService";
+import tipoProductoService from "../services/tipoProductoService";
+import productoService from "../services/productoService";
 
 import {
   camposVacios,
@@ -97,18 +99,12 @@ export default function CamposFactura({
 
   // Estados para el modal de producto
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [productos, setProductos] = useState(retornarLocalStorage("tablaProductos") || []);
+  const [productos, setProductos] = useState([]);
   const [newProductName, setNewProductName] = useState("");
   const [newProductCost, setNewProductCost] = useState("");
   const [newProductCostDollars, setNewProductCostDollars] = useState("");
   const [newProductType, setNewProductType] = useState("");
-  const [productTypes, setProductTypes] = useState(
-    retornarLocalStorage("opcionesTipoProducto") || [
-      { nombre: "eléctrico" },
-      { nombre: "mecánico" },
-      { nombre: "digital" },
-    ]
-  );
+  const [productTypes, setProductTypes] = useState([]);
   const [productError, setProductError] = useState("");
 
   // Estados para edición de productos
@@ -159,6 +155,30 @@ export default function CamposFactura({
       }
     }
   }, [editandoFila, filaEditar]);
+
+  // Fetch productos and product types on component mount
+  useEffect(() => {
+    fetchProductos();
+    fetchProductTypes();
+  }, []);
+
+  const fetchProductos = async () => {
+    try {
+      const productosData = await productoService.getAll();
+      setProductos(productosData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const fetchProductTypes = async () => {
+    try {
+      const tiposData = await tipoProductoService.getAll();
+      setProductTypes(tiposData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   // Update prices when currency changes
   useEffect(() => {
@@ -367,7 +387,7 @@ export default function CamposFactura({
   };
 
   // Funciones para el modal de producto
-  const handleAddNewProduct = () => {
+  const handleAddNewProduct = async () => {
     // Validaciones
     if (!newProductName || !newProductCost || !newProductType) {
       setProductError("Todos los campos son obligatorios");
@@ -393,56 +413,66 @@ export default function CamposFactura({
       return;
     }
 
-    // Crear nuevo producto
-    const newProduct = {
-      id: productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1,
-      nombre: newProductName,
-      costo: Number(newProductCost),
-      costoEnDolares: Number(newProductCostDollars) || 0,
-      tipodeproducto: newProductType
-    };
+    try {
+      // Crear nuevo producto
+      const newProduct = await productoService.create({
+        nombre: newProductName,
+        costo: Number(newProductCost),
+        costoEnDolares: Number(newProductCostDollars) || 0,
+        tipoproducto: newProductType
+      });
 
-    // Actualizar lista de productos
-    const updatedProducts = [newProduct, ...productos];
-    setProductos(updatedProducts);
-    insertarLocalStorage("tablaProductos", updatedProducts);
+      // Actualizar lista de productos
+      const updatedProducts = [newProduct, ...productos];
+      setProductos(updatedProducts);
 
-    // Si el tipo de producto es nuevo, agregarlo a las opciones
-    if (!productTypes.some(t => t.nombre === newProductType)) {
-      const updatedTypes = [...productTypes, { nombre: newProductType }];
-      setProductTypes(updatedTypes);
-      insertarLocalStorage("opcionesTipoProducto", updatedTypes);
-    }
-
-    // Limpiar y cerrar
-    setNewProductName("");
-    setNewProductCost("");
-    setNewProductCostDollars("");
-    setNewProductType("");
-    setProductError("");
-    setIsProductModalOpen(false);
-
-    // Agregar el nuevo producto directamente a la factura
-    const nuevosProductos = [
-      ...productosSeleccionados,
-      {
-        producto: newProductName,
-        cantidad: 1,
-        precioUnitario: isDolar ? Number(newProductCostDollars) || 0 : Number(newProductCost),
-        tipoDeMoneda: isDolar ? "USD" : "RD",
-        aplicarImpuesto: true,
-        total: isDolar ? 
-          (Number(newProductCostDollars) || 0) * 1.18 : 
-          Number(newProductCost) * 1.18
+      // Si el tipo de producto es nuevo, agregarlo a las opciones
+      if (!productTypes.some(t => t.nombre === newProductType)) {
+        const newType = await tipoProductoService.create(newProductType);
+        const updatedTypes = [...productTypes, newType];
+        setProductTypes(updatedTypes);
       }
-    ];
-    datosProductosChange(nuevosProductos);
+
+      // Limpiar y cerrar
+      setNewProductName("");
+      setNewProductCost("");
+      setNewProductCostDollars("");
+      setNewProductType("");
+      setProductError("");
+      setIsProductModalOpen(false);
+
+      // Agregar el nuevo producto directamente a la factura
+      const nuevosProductos = [
+        ...productosSeleccionados,
+        {
+          producto: newProductName,
+          cantidad: 1,
+          precioUnitario: isDolar ? Number(newProductCostDollars) || 0 : Number(newProductCost),
+          tipoDeMoneda: isDolar ? "USD" : "RD",
+          aplicarImpuesto: true,
+          total: isDolar ? 
+            (Number(newProductCostDollars) || 0) * 1.18 : 
+            Number(newProductCost) * 1.18
+        }
+      ];
+      datosProductosChange(nuevosProductos);
+    } catch (error) {
+      setProductError(error.message);
+      setTimeout(() => {
+        setProductError("");
+      }, 2000);
+    }
   };
 
-  const deleteProductType = (index) => {
-    const updatedTypes = productTypes.filter((_, i) => i !== index);
-    setProductTypes(updatedTypes);
-    insertarLocalStorage("opcionesTipoProducto", updatedTypes);
+  const deleteProductType = async (index) => {
+    try {
+      const typeToDelete = productTypes[index];
+      await tipoProductoService.delete(typeToDelete.id);
+      const updatedTypes = productTypes.filter((_, i) => i !== index);
+      setProductTypes(updatedTypes);
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   // Funciones para el modal de cliente

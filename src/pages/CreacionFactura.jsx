@@ -6,6 +6,7 @@ import { pdf } from "@react-pdf/renderer";
 import MyDocument from "../PDF/SolerPdf";
 import CamposFactura from "../components/CamposFactura";
 import clienteService from "../services/clienteService";
+import productoService from "../services/productoService";
 
 export default function CreacionFactura() {
   const iframeRef = useRef(null);
@@ -21,7 +22,7 @@ export default function CreacionFactura() {
     : [{ producto: "", cantidad: 1, precioUnitario: 0, tipoDeMoneda: "RD" }];
   const valorDolar = editandoFila ? filaEditar.isDolar : false;
   const valorIsCot = editandoFila ? filaEditar.isCot : false;
-  const valorProductos = [];
+  const [productos, setProductos] = useState([]);
   const valorId = useState(1);
   const ultimoCot = "1";
 
@@ -49,17 +50,26 @@ export default function CreacionFactura() {
   const [isDolar, setIsDolar] = useState(valorDolar);
   const [isCot, setIsCot] = useState(valorIsCot);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
-  const productos = valorProductos;
   const [id, setId] = valorId;
 
   useEffect(() => {
     fetchClientes();
+    fetchProductos();
   }, []);
 
   const fetchClientes = async () => {
     try {
       const clientesData = await clienteService.getAll();
       setClientes(clientesData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const fetchProductos = async () => {
+    try {
+      const productosData = await productoService.getAll();
+      setProductos(productosData);
     } catch (error) {
       setError(error.message);
     }
