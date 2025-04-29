@@ -2,13 +2,13 @@ import "../styles/Clientes.css";
 import Table from "../components/Table";
 import HeaderGroup from "../components/HeaderGroup";
 import Modal from "../components/Modal";
-import UseStorage from "../hooks/UseStorage";
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Alert from "@mui/joy/Alert";
 import CamposClientes from "../components/CamposClientes";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import useModal from "../hooks/UseModal";
+import clienteService from "../services/clienteService";
 
 import {
   camposVacios,
@@ -36,19 +36,10 @@ const columnas = [
 const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 export default function Clientes() {
-  const [
-    insertarLocalStorage,
-    retornarLocalStorage,
-    insertarUltimoId,
-    retornarUltimoId,
-  ] = UseStorage();
-
-  const nombreTabla = "tablaClientes";
   const [isModal, setIsModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
-
-  const [rows, setRows] = useState(retornarLocalStorage(nombreTabla) || []);
+  const [rows, setRows] = useState([]);
   const [palabraFiltro, setPalabraFiltro] = useState("");
   const [busqueda, setBusqueda] = useState([]);
   const [cedula, setCedula] = useState("");
@@ -59,17 +50,29 @@ export default function Clientes() {
   const [telefono, setTelefono] = useState("");
   const [celular, setCelular] = useState("");
   const [ciudad, setCiudad] = useState("");
-
-  const [id, setId] = useState(retornarUltimoId(nombreTabla));
   const [isError, setIsError] = useState(false);
   const [mensajeAlerta, setMensajeAlerta] = useState("");
 
   const [isModalConfirmacion, setIsModalConfirmacion, cancelarEliminacion] =
     useModal();
 
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  const fetchClientes = async () => {
+    try {
+      const clientes = await clienteService.getAll();
+      setRows(clientes);
+    } catch (error) {
+      setMensajeAlerta(error.message);
+      setIsError(true);
+    }
+  };
+
   function showModal(id) {
     limpiarCampos();
-    limpiarError(); // Limpiar errores al abrir modal
+    limpiarError();
     setIsModal(true);
     setIsEditing(false);
 
@@ -80,8 +83,8 @@ export default function Clientes() {
     }
   }
 
-  function validarInformacion() {
-    limpiarError(); // Limpiar errores previos
+  async function validarInformacion() {
+    limpiarError();
     if (
       camposVacios(
         cedula,
@@ -93,7 +96,7 @@ export default function Clientes() {
       !validarFormatoEmail(email, regex) ||
       !validarCedula(cedula) ||
       !validarTelefonos(telefono, celular) ||
-      !validarTelefonosExistentes(rows,telefono, celular, idSeleccionado) ||
+      !validarTelefonosExistentes(rows, telefono, celular, idSeleccionado) ||
       !validarCamposLargos(nombre, apellido, direccion, ciudad, email) ||
       !validarClienteExistente(rows, nombre, idSeleccionado) ||
       !validarCedulaExistente(rows, cedula, idSeleccionado)
@@ -109,17 +112,23 @@ export default function Clientes() {
       }
       return;
     }
-    procesarDatos();
+    await procesarDatos();
   }
 
-  function procesarDatos() {
+  async function procesarDatos() {
     setIsModal(false);
     limpiarCampos();
 
-    if (!isEditing) {
-      agregarCliente();
-    } else {
-      actualizarCliente();
+    try {
+      if (!isEditing) {
+        await agregarCliente();
+      } else {
+        await actualizarCliente();
+      }
+      await fetchClientes();
+    } catch (error) {
+      setMensajeAlerta(error.message);
+      setIsError(true);
     }
   }
 
@@ -134,54 +143,55 @@ export default function Clientes() {
     setCelular("");
   }
 
-  function agregarCliente() {
-    setRows((rows) => {
-      const nuevasRows = [
-        { id, cedula, nombre, apellido, email, direccion, ciudad, telefono, celular },
-        ...rows,
-      ];
-      insertarLocalStorage(nombreTabla, nuevasRows);
-      insertarUltimoId(nombreTabla, id + 1);
-      return nuevasRows;
-    });
-    setId((id) => id + 1);
+  async function agregarCliente() {
+    try {
+      await clienteService.create({
+        cedula,
+        nombre,
+        apellido,
+        email,
+        direccion,
+        ciudad,
+        telefono,
+        celular
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
-  function actualizarCliente() {
-    setRows((rows) => {
-      const nuevasRows = rows.map((row) =>
-        row.id === idSeleccionado
-          ? {
-              ...row,
-              cedula,
-              nombre,
-              apellido,
-              email,
-              direccion,
-              ciudad,
-              telefono,
-              celular,
-            }
-          : row
-      );
-      insertarLocalStorage(nombreTabla, nuevasRows);
-      return nuevasRows;
-    });
-    setIsEditing(false);
+  async function actualizarCliente() {
+    try {
+      await clienteService.update(idSeleccionado, {
+        cedula,
+        nombre,
+        apellido,
+        email,
+        direccion,
+        ciudad,
+        telefono,
+        celular
+      });
+      setIsEditing(false);
+    } catch (error) {
+      throw error;
+    }
   }
 
-  function eliminarElemento(id) {
-    setRows((rows) => {
-      const nuevasRows = rows.filter((row) => row.id !== id);
-      insertarLocalStorage(nombreTabla, nuevasRows);
-      return nuevasRows;
-    });
+  async function eliminarElemento(id) {
+    try {
+      await clienteService.delete(id);
+      await fetchClientes();
+    } catch (error) {
+      setMensajeAlerta(error.message);
+      setIsError(true);
+    }
   }
 
   function editarFila(id) {
     const fila = rows.find((row) => row.id === id);
     if (fila) {
-      setCedula(fila.cedula);
+      setCedula(fila.rnc_cedula);
       setNombre(fila.nombre);
       setApellido(fila.apellido);
       setEmail(fila.email);
