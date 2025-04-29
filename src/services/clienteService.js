@@ -7,7 +7,7 @@ const transformCliente = (data) => {
   if (!data) return null;
   return {
     id: data.ID || data.id,
-    rnc_cedula: data.RNC_Cedula || data.rnc_cedula,
+    cedula: data.RNC_Cedula || data.rnc_cedula,
     nombre: data.Nombre || data.nombre,
     apellido: data.Apellido || data.apellido,
     email: data.Email || data.email,
@@ -17,7 +17,7 @@ const transformCliente = (data) => {
     celular: data.Celular || data.celular
   };
 };
-
+ 
 const clienteService = {
   /**
    * Get all clientes
@@ -41,7 +41,7 @@ const clienteService = {
   create: async (cliente) => {
     try {
       const response = await axios.post(CLIENTE_ENDPOINT, {
-        rnc_cedula: cliente.cedula,
+        rnc_cedula: cliente.rnc_cedula,
         nombre: cliente.nombre,
         apellido: cliente.apellido,
         email: cliente.email,
@@ -66,7 +66,7 @@ const clienteService = {
   update: async (id, cliente) => {
     try {
       const response = await axios.put(`${CLIENTE_ENDPOINT}/${id}`, {
-        rnc_cedula: cliente.cedula,
+        rnc_cedula: cliente.rnc_cedula,
         nombre: cliente.nombre,
         apellido: cliente.apellido,
         email: cliente.email,

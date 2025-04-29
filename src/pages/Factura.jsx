@@ -3,11 +3,11 @@ import Table from "../components/Table";
 import HeaderGroup from "../components/HeaderGroup";
 import Modal from "../components/Modal";
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Alert from "@mui/joy/Alert";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import useModal from "../hooks/UseModal";
-import UseStorage from "../hooks/UseStorage";
+import clienteService from "../services/clienteService";
 
 const columnas = [
   "ID",
@@ -28,33 +28,33 @@ export default function Factura() {
   const [isModal, setIsModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
-  const [
-    insertarLocalStorage,
-    retornarLocalStorage,
-    insertarUltimoId,
-    retornarUltimoId,
-  ] = UseStorage();
-
-  const nombreTabla = "tablaFacturas";
-  const [rows, setRows] = useState(retornarLocalStorage(nombreTabla) || []);
+  const [rows, setRows] = useState([]);
   const [rowFiltrada, setRowFiltrada] = useState([]);
   const [palabraFiltro, setPalabraFiltro] = useState("");
   const [busqueda, setBusqueda] = useState([]);
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [fechaVencimiento, setFechaVencimiento] = useState("");
+  const [clientes, setClientes] = useState([]);
+  const [isError, setIsError] = useState(false);
+  const [mensajeAlerta, setMensajeAlerta] = useState("");
 
-  const [id, setId] = useState(retornarUltimoId(nombreTabla));
+  const [isModalConfirmacion, setIsModalConfirmacion, cancelarEliminacion] =
+    useModal();
 
-  const [
-    isError,
-    setIsError,
-    mensajeAlerta,
-    setMensajeAlerta,
-    isModalConfirmacion,
-    setIsModalConfirmacion,
-    cancelarEliminacion,
-  ] = useModal();
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  const fetchClientes = async () => {
+    try {
+      const clientesData = await clienteService.getAll();
+      setClientes(clientesData);
+    } catch (error) {
+      setMensajeAlerta(error.message);
+      setIsError(true);
+    }
+  };
 
   function showModal(id) {
     setNombre("");
@@ -94,11 +94,8 @@ export default function Factura() {
           },
           ...rows,
         ];
-        insertarLocalStorage(nombreTabla, nuevasRows);
-        insertarUltimoId(nombreTabla, id + 1);
         return nuevasRows;
       });
-      setId((id) => id + 1);
     } else {
       setRows((rows) => {
         const nuevasRows = rows.map((row, i) =>
@@ -111,7 +108,6 @@ export default function Factura() {
               }
             : row
         );
-        insertarLocalStorage(nombreTabla, nuevasRows);
         return nuevasRows;
       });
       setIsEditing(false);
@@ -121,7 +117,6 @@ export default function Factura() {
   function eliminarElemento(id) {
     setRows((rows) => {
       const nuevasRows = rows.filter((row) => row.id !== id);
-      insertarLocalStorage(nombreTabla, nuevasRows);
       return nuevasRows;
     });
   }
@@ -150,17 +145,15 @@ export default function Factura() {
     }
   }
 
-  function opcionFiltrada(filtro){
-    if(filtro === 'COT'){
-      const filasFiltrada = retornarLocalStorage(nombreTabla).filter((row) => row.isCot === true);
+  function opcionFiltrada(filtro) {
+    if (filtro === "COT") {
+      const filasFiltrada = rows.filter((row) => row.isCot === true);
       setRows(filasFiltrada);
-    }
-    else if(filtro === 'NCF'){
-      const filasFiltrada = retornarLocalStorage(nombreTabla).filter((row) => row.isCot === false);
+    } else if (filtro === "NCF") {
+      const filasFiltrada = rows.filter((row) => row.isCot === false);
       setRows(filasFiltrada);
-    }
-    else{
-      setRows(retornarLocalStorage(nombreTabla) || [])
+    } else {
+      setRows(rows);
     }
   }
 

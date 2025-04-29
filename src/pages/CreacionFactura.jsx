@@ -4,36 +4,26 @@ import { Alert, Button } from "@mui/material";
 import "../styles/CreacionFactura.css";
 import { pdf } from "@react-pdf/renderer";
 import MyDocument from "../PDF/SolerPdf";
-import UseStorage from "../hooks/UseStorage";
 import CamposFactura from "../components/CamposFactura";
+import clienteService from "../services/clienteService";
 
 export default function CreacionFactura() {
   const iframeRef = useRef(null);
   const navigate = useNavigate();
-  const [
-    insertarLocalStorage,
-    retornarLocalStorage,
-    insertarUltimoId,
-    retornarUltimoId,
-    guardarUltimoSecuencialNCF,
-  ] = UseStorage();
   const [error, setError] = useState("");
-
-  const [filaEditar] = useState(retornarLocalStorage("fila-editar"));
-  const [editandoFila] = useState(retornarLocalStorage("editando-fila"));
-  const tituloDeFactura = editandoFila
-    ? "Editando Factura"
-    : "Campos de la factura";
+  const [clientes, setClientes] = useState([]);
+  const [filaEditar] = useState(null);
+  const [editandoFila] = useState(false);
+  const tituloDeFactura = editandoFila ? "Editando Factura" : "Campos de la factura";
 
   const valorProductosSeleccionados = editandoFila
     ? filaEditar.productos
     : [{ producto: "", cantidad: 1, precioUnitario: 0, tipoDeMoneda: "RD" }];
   const valorDolar = editandoFila ? filaEditar.isDolar : false;
   const valorIsCot = editandoFila ? filaEditar.isCot : false;
-  const valorClientes = retornarLocalStorage("tablaClientes") || [];
-  const valorProductos = retornarLocalStorage("tablaProductos") || [];
-  const valorId = useState(retornarUltimoId("tablaFacturas") || 1);
-  const ultimoCot = retornarLocalStorage("ultimoCot") || "1";
+  const valorProductos = [];
+  const valorId = useState(1);
+  const ultimoCot = "1";
 
   const datosIniciales = {
     descripcion: "",
@@ -59,13 +49,24 @@ export default function CreacionFactura() {
   const [isDolar, setIsDolar] = useState(valorDolar);
   const [isCot, setIsCot] = useState(valorIsCot);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
-  const [clientes, setClientes] = useState(valorClientes);
   const productos = valorProductos;
   const [id, setId] = valorId;
 
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  const fetchClientes = async () => {
+    try {
+      const clientesData = await clienteService.getAll();
+      setClientes(clientesData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const salirPagina = () => {
     navigate("/");
-    insertarLocalStorage("editando-fila", false);
   };
 
   const datosFacturaChange = useCallback(
@@ -123,15 +124,14 @@ export default function CreacionFactura() {
   }, [iniciarPDF, datosFactura]);
 
   const validarDatosPDF = useCallback(() => {
-
     const { cliente, productos, ncf, cot, fechavencimiento } = datosFactura;
 
-    if(ncf.slice(3) === "00000000"){
-      return "Secuencial Invalido"
+    if (ncf.slice(3) === "00000000") {
+      return "Secuencial Invalido";
     }
 
-    if(cot <= 0 || isNaN(cot)){
-      return "COT invalido"
+    if (cot <= 0 || isNaN(cot)) {
+      return "COT invalido";
     }
 
     if (ncf.length !== 11) {
@@ -153,28 +153,23 @@ export default function CreacionFactura() {
     return null;
   }, [datosFactura, calcularTotal]);
 
-  const incrementarSecuencial = useCallback(
-    (currentNcf) => {
-      console.log(currentNcf)
-      const serie = currentNcf.substring(0, 1);
-      const tipo = currentNcf.substring(1, 3);
-      const currentSecuencial = currentNcf.substring(3);
+  const incrementarSecuencial = useCallback((currentNcf) => {
+    const serie = currentNcf.substring(0, 1);
+    const tipo = currentNcf.substring(1, 3);
+    const currentSecuencial = currentNcf.substring(3);
 
-      const numero = parseInt(currentSecuencial);
-      const nuevoNumero = numero + 1;
-      const nuevoSecuencial = nuevoNumero.toString().padStart(8, "0");
+    const numero = parseInt(currentSecuencial);
+    const nuevoNumero = numero + 1;
+    const nuevoSecuencial = nuevoNumero.toString().padStart(8, "0");
 
-      const nuevoNcf = `${serie}${tipo}${nuevoSecuencial}`;
-      guardarUltimoSecuencialNCF(nuevoSecuencial);
-      setDatosFactura((prev) => ({
-        ...prev,
-        ncf: nuevoNcf,
-      }));
+    const nuevoNcf = `${serie}${tipo}${nuevoSecuencial}`;
+    setDatosFactura((prev) => ({
+      ...prev,
+      ncf: nuevoNcf,
+    }));
 
-      return nuevoNcf;
-    },
-    [guardarUltimoSecuencialNCF]
-  );
+    return nuevoNcf;
+  }, []);
 
   const generarPDF = useCallback(() => {
     const errorValidacion = validarDatosPDF();
@@ -206,56 +201,11 @@ export default function CreacionFactura() {
       isCot: datosFactura.isCot,
     };
 
-    const facturasExistentes = retornarLocalStorage("tablaFacturas") || [];
-
-
-
-    const rowTablaNcf = retornarLocalStorage("tablaNcf") || [];
-
-      rowTablaNcf.unshift({
-          tipo: facturaActualizada.ncf.slice(1, 3),
-          secuencia: facturaActualizada.ncf.slice(3),
-          serie: facturaActualizada.ncf.slice(0, 1), 
-          fechadecreacion: new Date().toLocaleDateString("sv-SE", opciones)
-        })
-
-      insertarLocalStorage("tablaNcf", rowTablaNcf);
-
-    let nuevasFacturas;
-
-    if (editandoFila) {
-
-      nuevasFacturas = facturasExistentes.map((factura) =>
-        factura.id === facturaActualizada.id ? facturaActualizada : factura
-      );
-    } else {
-      nuevasFacturas = [facturaActualizada, ...facturasExistentes];
-    }
-
-    insertarLocalStorage("editando-fila", false);
-
-    if (datosFactura.isCot) {
-      insertarLocalStorage(
-        "ultimoCot",
-        (Number(datosFactura.cot) + 1)
-      );
-    }
-
-    insertarLocalStorage("tablaFacturas", nuevasFacturas);
-
-    let nuevoNcf;
-    if (datosFactura.isCot) {
-      nuevoNcf = datosFactura.ncf;
-    } else {
-      nuevoNcf = incrementarSecuencial(datosFactura.ncf);
-    }
-
     if (!editandoFila) {
       const nuevoId = id + 1;
-      insertarUltimoId("tablaFacturas", nuevoId);
       setDatosFactura((prev) => ({
         ...prev,
-        ncf: nuevoNcf,
+        ncf: incrementarSecuencial(datosFactura.ncf),
       }));
     }
 
@@ -266,7 +216,7 @@ export default function CreacionFactura() {
         total: 0,
         cliente: "",
         productos: [],
-        ncf: nuevoNcf,
+        ncf: "",
         gastoEnvio: "",
         medioPago: "",
         fechavencimiento: "",
@@ -281,9 +231,6 @@ export default function CreacionFactura() {
     datosFactura,
     calcularSubtotal,
     calcularTotal,
-    insertarUltimoId,
-    retornarLocalStorage,
-    insertarLocalStorage,
     navigate,
     editandoFila,
     filaEditar,

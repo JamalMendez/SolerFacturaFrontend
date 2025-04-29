@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Autocomplete,
 } from "@mui/material";
 import TextArea from "@mui/joy/Textarea";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -22,6 +23,7 @@ import Modal from "./Modal";
 import CamposClientes from "./CamposClientes";
 import Alert from "@mui/joy/Alert";
 import CamposProductos from "./CamposProductos";
+import clienteService from "../services/clienteService";
 
 import {
   camposVacios,
@@ -138,6 +140,14 @@ export default function CamposFactura({
   const [celular, setCelular] = useState("");
   const [ciudad, setCiudad] = useState("");
 
+  const [error, setError] = useState("");
+  const [productoActual, setProductoActual] = useState({
+    producto: "",
+    cantidad: 1,
+    precioUnitario: 0,
+    tipoDeMoneda: "RD",
+  });
+
   // Initialize form data when editing
   useEffect(() => {
     if (editandoFila) {
@@ -224,16 +234,30 @@ export default function CamposFactura({
 
   // Add new product
   const agregarProducto = () => {
-    datosProductosChange([
-      ...productosSeleccionados,
-      {
-        producto: "",
-        cantidad: 1,
-        precioUnitario: 0,
-        tipoDeMoneda: isDolar ? "USD" : "RD",
-        aplicarImpuesto: true,
-      },
-    ]);
+    if (!productoActual.producto) {
+      setError("Debe seleccionar un producto");
+      return;
+    }
+
+    if (productoActual.cantidad <= 0) {
+      setError("La cantidad debe ser mayor a 0");
+      return;
+    }
+
+    if (productoActual.precioUnitario <= 0) {
+      setError("El precio debe ser mayor a 0");
+      return;
+    }
+
+    const nuevosProductos = [...productosSeleccionados, productoActual];
+    datosProductosChange(nuevosProductos);
+    setProductoActual({
+      producto: "",
+      cantidad: 1,
+      precioUnitario: 0,
+      tipoDeMoneda: "RD",
+    });
+    setError("");
   };
 
   // Remove product
@@ -422,7 +446,7 @@ export default function CamposFactura({
   };
 
   // Funciones para el modal de cliente
-  function validarInformacionCliente() {
+  async function validarInformacionCliente() {
     limpiarError();
 
     if (
@@ -439,9 +463,7 @@ export default function CamposFactura({
       !validarFormatoEmail(email, regex) ||
       !validarCedula(cedula) ||
       !validarTelefonos(telefono, celular) ||
-      !validarCamposLargos(nombre, apellido, direccion, ciudad, email) ||
-      !validarClienteExistente(rows, nombre, null) ||
-      !validarCedulaExistente(rows, cedula, null)  
+      !validarCamposLargos(nombre, apellido, direccion, ciudad, email)
     ) {
       if (errorValidacion.hayError) {
         setMensajeAlerta(errorValidacion.mensaje);
@@ -455,9 +477,35 @@ export default function CamposFactura({
       return;
     }
 
-    agregarCliente();
-    setIsModal(false);
-    limpiarCamposCliente();
+    try {
+      const nuevoCliente = {
+        rnc_cedula: cedula,
+        nombre: nombre,
+        apellido: apellido,
+        email: email,
+        direccion: direccion,
+        ciudad: ciudad,
+        telefono: telefono,
+        celular: celular
+      };
+
+      await clienteService.create(nuevoCliente);
+      
+      // Refresh client list
+      const clientesData = await clienteService.getAll();
+      setClientes(clientesData);
+      
+      setIsModal(false);
+      limpiarCamposCliente();
+      iniciarPDF();
+    } catch (error) {
+      setMensajeAlerta(error.message);
+      setIsError(true);
+      setTimeout(() => {
+        setMensajeAlerta("");
+        setIsError(false);
+      }, 2000);
+    }
   }
 
   function limpiarCamposCliente() {
@@ -471,29 +519,40 @@ export default function CamposFactura({
     setCelular("");
   }
 
-  function agregarCliente() {
-    const nuevoCliente = {
-      id,
-      cedula,
-      nombre,
-      apellido,
-      email,
-      direccion,
-      ciudad,
-      telefono,
-      celular,
-    };
+  useEffect(() => {
+    fetchClientes();
+  }, []);
 
-    const nuevasRows = [nuevoCliente, ...rows];
-    insertarLocalStorage(nombreTabla, nuevasRows);
-    insertarUltimoId(nombreTabla, id + 1);
-    
-    setRows(nuevasRows);
-    setClientes(nuevasRows);
-    
-    setId((id) => id + 1);
-    iniciarPDF();
-  }
+  const fetchClientes = async () => {
+    try {
+      const clientesData = await clienteService.getAll();
+      setClientes(clientesData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleClienteChange = (event, newValue) => {
+    datosFacturaChange("cliente", newValue?.nombre || "");
+  };
+
+  const handleCantidadChange = (event) => {
+    const cantidad = parseInt(event.target.value) || 0;
+    setProductoActual((prev) => ({
+      ...prev,
+      cantidad,
+      total: cantidad * prev.precioUnitario,
+    }));
+  };
+
+  const handlePrecioChange = (event) => {
+    const precio = parseFloat(event.target.value) || 0;
+    setProductoActual((prev) => ({
+      ...prev,
+      precioUnitario: precio,
+      total: precio * prev.cantidad,
+    }));
+  };
 
   return (
     <>
@@ -655,22 +714,15 @@ export default function CamposFactura({
         {/* Sección Cliente */}
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <FormControl style={{ flex: 1 }}>
-            <InputLabel>Clientes</InputLabel>
-            <Select
-              value={cliente || ""}
-              onChange={(e) => {
-                handleChange("cliente", e.target.value)
-                iniciarPDF();
-              }}
-              label="Clientes"
-            >
-              <MenuItem value="">Seleccione un cliente</MenuItem>
-              {clientes.map((c) => (
-                <MenuItem key={c.id} value={c.nombre}>
-                  {c.nombre}
-                </MenuItem>
-              ))}
-            </Select>
+            <Autocomplete
+              options={clientes}
+              getOptionLabel={(option) => option.nombre}
+              value={clientes.find((c) => c.nombre === datosFactura.cliente) || null}
+              onChange={handleClienteChange}
+              renderInput={(params) => (
+                <TextField {...params} label="Clientes" required />
+              )}
+            />
           </FormControl>
 
           <Button
